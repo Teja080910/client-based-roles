@@ -8,14 +8,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { countries, organizationsByCountry } from "@/types/defaut-values";
-import { Building, Eye, EyeOff, Globe, Lock, LogIn, Mail, Search, User, UserPlus, X } from "lucide-react";
+import { Building, Eye, EyeOff, Globe, Lock, Mail, Router, Search, User, UserPlus, X } from "lucide-react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-
 export default function AuthPage() {
-    const router = useRouter();
-    const [isLogin, setIsLogin] = useState(true);
     const [showPassword, setShowPassword] = useState(false);
     const [showPasswordDialog, setShowPasswordDialog] = useState(false);
     const [selectedOrganizations, setSelectedOrganizations] = useState<string[]>([]);
@@ -30,6 +28,7 @@ export default function AuthPage() {
         password: "",
         loginField: ""
     });
+    const router = useRouter();
 
     // Get available organizations based on selected countries
     const getAvailableOrganizations = () => {
@@ -65,9 +64,9 @@ export default function AuthPage() {
         );
     };
 
-    const gotoLogin = () => {
-        router.push("/login");
-    };
+    const gotoSignIn = () => {
+        router.push('/');
+    }
 
     const handleCountryToggle = (countryCode: string) => {
         setSelectedCountries(prev => {
@@ -129,6 +128,12 @@ export default function AuthPage() {
         setShowPasswordDialog(true);
     };
 
+    const handleLogin = (e: React.FormEvent) => {
+        e.preventDefault();
+        // Here you would typically handle login logic
+        console.log("Login attempted with:", formData.loginField, formData.password);
+    };
+
     const handlePasswordSet = (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -158,7 +163,7 @@ export default function AuthPage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
-            <div className="w-full max-w-md">
+            <div className="w-full max-w-4xl">
                 <Card className="backdrop-blur-sm bg-white/95 border-0 shadow-2xl shadow-blue-500/10">
                     <CardHeader className="space-y-4 text-center">
                         <div className="flex justify-center">
@@ -177,158 +182,101 @@ export default function AuthPage() {
                     </CardHeader>
 
                     <CardContent className="space-y-6">
-                        <form onSubmit={handleRegistration} className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
-                                        First Name
-                                    </Label>
-                                    <Input
-                                        id="firstName"
-                                        type="text"
-                                        placeholder="John"
-                                        value={formData.firstName}
-                                        onChange={(e) => handleInputChange("firstName", e.target.value)}
-                                        className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                                        required
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">
-                                        Last Name
-                                    </Label>
-                                    <Input
-                                        id="lastName"
-                                        type="text"
-                                        placeholder="Doe"
-                                        value={formData.lastName}
-                                        onChange={(e) => handleInputChange("lastName", e.target.value)}
-                                        className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="username" className="text-sm font-medium text-gray-700">
-                                    Username
-                                </Label>
-                                <div className="relative">
-                                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                                    <Input
-                                        id="username"
-                                        type="text"
-                                        placeholder="johndoe"
-                                        value={formData.username}
-                                        onChange={(e) => handleInputChange("username", e.target.value)}
-                                        className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                                    Email
-                                </Label>
-                                <div className="relative">
-                                    <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                                    <Input
-                                        id="email"
-                                        type="email"
-                                        placeholder="john@example.com"
-                                        value={formData.email}
-                                        onChange={(e) => handleInputChange("email", e.target.value)}
-                                        className="pl-10 h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                                    <Globe className="h-4 w-4" />
-                                    Countries
-                                </Label>
-                                <div className="border border-gray-200 rounded-lg p-3 min-h-[48px] focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
-                                    {selectedCountries.length > 0 && (
-                                        <div className="flex flex-wrap gap-2 mb-3">
-                                            {selectedCountries.map((countryCode) => (
-                                                <Badge key={countryCode} variant="secondary" className="px-2 py-1 text-xs">
-                                                    {countryCode} - {getCountryName(countryCode)}
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => removeCountry(countryCode)}
-                                                        className="ml-2 hover:text-red-500 transition-colors"
-                                                    >
-                                                        <X className="h-3 w-3" />
-                                                    </button>
-                                                </Badge>
-                                            ))}
+                        <form onSubmit={handleRegistration} className="space-y-6">
+                            {/* Personal Information Row */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">
+                                        Personal Information
+                                    </h3>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
+                                                First Name
+                                            </Label>
+                                            <Input
+                                                id="firstName"
+                                                type="text"
+                                                placeholder="John"
+                                                value={formData.firstName}
+                                                onChange={(e) => handleInputChange("firstName", e.target.value)}
+                                                className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                                                required
+                                            />
                                         </div>
-                                    )}
-
-                                    {/* Search Bar */}
-                                    <div className="relative mb-3">
-                                        <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-                                        <Input
-                                            type="text"
-                                            placeholder="Search countries..."
-                                            value={countrySearch}
-                                            onChange={(e) => setCountrySearch(e.target.value)}
-                                            className="pl-10 h-9 text-sm border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                                        />
+                                        <div className="space-y-2">
+                                            <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">
+                                                Last Name
+                                            </Label>
+                                            <Input
+                                                id="lastName"
+                                                type="text"
+                                                placeholder="Doe"
+                                                value={formData.lastName}
+                                                onChange={(e) => handleInputChange("lastName", e.target.value)}
+                                                className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                                                required
+                                            />
+                                        </div>
                                     </div>
 
-                                    <div className="space-y-2 max-h-32 overflow-y-auto">
-                                        {filteredCountries.length > 0 ? (
-                                            filteredCountries.map((country) => (
-                                                <div key={country.code} className="flex items-center space-x-2">
-                                                    <Checkbox
-                                                        id={country.code}
-                                                        checked={selectedCountries.includes(country.code)}
-                                                        onCheckedChange={() => handleCountryToggle(country.code)}
-                                                        className="border-gray-300 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"
-                                                    />
-                                                    <Label htmlFor={country.code} className="text-sm text-gray-700 cursor-pointer">
-                                                        {country.code} - {country.name}
-                                                    </Label>
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <div className="text-sm text-gray-500 text-center py-2">
-                                                No countries found
-                                            </div>
-                                        )}
+                                    <div className="space-y-2">
+                                        <Label htmlFor="username" className="text-sm font-medium text-gray-700">
+                                            Username
+                                        </Label>
+                                        <div className="relative">
+                                            <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                            <Input
+                                                id="username"
+                                                type="text"
+                                                placeholder="johndoe"
+                                                value={formData.username}
+                                                onChange={(e) => handleInputChange("username", e.target.value)}
+                                                className="pl-10 h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                                                required
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                                            Email
+                                        </Label>
+                                        <div className="relative">
+                                            <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                            <Input
+                                                id="email"
+                                                type="email"
+                                                placeholder="john@example.com"
+                                                value={formData.email}
+                                                onChange={(e) => handleInputChange("email", e.target.value)}
+                                                className="pl-10 h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                                                required
+                                            />
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div className="space-y-2">
-                                <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                                    <Building className="h-4 w-4" />
-                                    Organizations
-                                    {selectedCountries.length > 0 && (
-                                        <span className="text-xs text-gray-500">
-                                            ({availableOrganizations.length} available)
-                                        </span>
-                                    )}
-                                </Label>
-                                <div className="border border-gray-200 rounded-lg p-3 min-h-[48px] focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
-                                    {selectedCountries.length === 0 ? (
-                                        <div className="text-sm text-gray-500 text-center py-4">
-                                            Please select countries first to see available organizations
-                                        </div>
-                                    ) : (
-                                        <>
-                                            {selectedOrganizations.length > 0 && (
+                                {/* Countries and Organizations */}
+                                <div className="space-y-4">
+                                    <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">
+                                        Location & Organizations
+                                    </h3>
+
+                                    <div className="space-y-2">
+                                        <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                            <Globe className="h-4 w-4" />
+                                            Countries
+                                        </Label>
+                                        <div className="border border-gray-200 rounded-lg p-3 min-h-[120px] max-h-[200px] overflow-y-auto focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
+                                            {selectedCountries.length > 0 && (
                                                 <div className="flex flex-wrap gap-2 mb-3">
-                                                    {selectedOrganizations.map((org) => (
-                                                        <Badge key={org} variant="secondary" className="px-2 py-1 text-xs">
-                                                            {org}
+                                                    {selectedCountries.map((countryCode) => (
+                                                        <Badge key={countryCode} variant="secondary" className="px-2 py-1 text-xs">
+                                                            {countryCode} - {getCountryName(countryCode)}
                                                             <button
                                                                 type="button"
-                                                                onClick={() => removeOrganization(org)}
+                                                                onClick={() => removeCountry(countryCode)}
                                                                 className="ml-2 hover:text-red-500 transition-colors"
                                                             >
                                                                 <X className="h-3 w-3" />
@@ -343,52 +291,126 @@ export default function AuthPage() {
                                                 <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                                                 <Input
                                                     type="text"
-                                                    placeholder="Search organizations..."
-                                                    value={organizationSearch}
-                                                    onChange={(e) => setOrganizationSearch(e.target.value)}
+                                                    placeholder="Search countries..."
+                                                    value={countrySearch}
+                                                    onChange={(e) => setCountrySearch(e.target.value)}
                                                     className="pl-10 h-9 text-sm border-gray-200 focus:border-blue-500 focus:ring-blue-500"
                                                 />
                                             </div>
 
-                                            <div className="space-y-2 max-h-32 overflow-y-auto">
-                                                {filteredOrganizations.length > 0 ? (
-                                                    filteredOrganizations.map((org) => (
-                                                        <div key={org} className="flex items-center space-x-2">
+                                            <div className="space-y-2">
+                                                {filteredCountries.length > 0 ? (
+                                                    filteredCountries.slice(0, 10).map((country) => (
+                                                        <div key={country.code} className="flex items-center space-x-2">
                                                             <Checkbox
-                                                                id={org}
-                                                                checked={selectedOrganizations.includes(org)}
-                                                                onCheckedChange={() => handleOrganizationToggle(org)}
+                                                                id={country.code}
+                                                                checked={selectedCountries.includes(country.code)}
+                                                                onCheckedChange={() => handleCountryToggle(country.code)}
                                                                 className="border-gray-300 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"
                                                             />
-                                                            <Label htmlFor={org} className="text-sm text-gray-700 cursor-pointer">
-                                                                {org}
+                                                            <Label htmlFor={country.code} className="text-sm text-gray-700 cursor-pointer">
+                                                                {country.code} - {country.name}
                                                             </Label>
                                                         </div>
                                                     ))
                                                 ) : (
                                                     <div className="text-sm text-gray-500 text-center py-2">
-                                                        No organizations found
+                                                        No countries found
                                                     </div>
                                                 )}
                                             </div>
-                                        </>
-                                    )}
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                                            <Building className="h-4 w-4" />
+                                            Organizations
+                                            {selectedCountries.length > 0 && (
+                                                <span className="text-xs text-gray-500">
+                                                    ({availableOrganizations.length} available)
+                                                </span>
+                                            )}
+                                        </Label>
+                                        <div className="border border-gray-200 rounded-lg p-3 min-h-[120px] max-h-[200px] overflow-y-auto focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
+                                            {selectedCountries.length === 0 ? (
+                                                <div className="text-sm text-gray-500 text-center py-8">
+                                                    Please select countries first to see available organizations
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    {selectedOrganizations.length > 0 && (
+                                                        <div className="flex flex-wrap gap-2 mb-3">
+                                                            {selectedOrganizations.map((org) => (
+                                                                <Badge key={org} variant="secondary" className="px-2 py-1 text-xs">
+                                                                    {org}
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => removeOrganization(org)}
+                                                                        className="ml-2 hover:text-red-500 transition-colors"
+                                                                    >
+                                                                        <X className="h-3 w-3" />
+                                                                    </button>
+                                                                </Badge>
+                                                            ))}
+                                                        </div>
+                                                    )}
+
+                                                    {/* Search Bar */}
+                                                    <div className="relative mb-3">
+                                                        <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                                                        <Input
+                                                            type="text"
+                                                            placeholder="Search organizations..."
+                                                            value={organizationSearch}
+                                                            onChange={(e) => setOrganizationSearch(e.target.value)}
+                                                            className="pl-10 h-9 text-sm border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                                                        />
+                                                    </div>
+
+                                                    <div className="space-y-2">
+                                                        {filteredOrganizations.length > 0 ? (
+                                                            filteredOrganizations.slice(0, 10).map((org) => (
+                                                                <div key={org} className="flex items-center space-x-2">
+                                                                    <Checkbox
+                                                                        id={org}
+                                                                        checked={selectedOrganizations.includes(org)}
+                                                                        onCheckedChange={() => handleOrganizationToggle(org)}
+                                                                        className="border-gray-300 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"
+                                                                    />
+                                                                    <Label htmlFor={org} className="text-sm text-gray-700 cursor-pointer">
+                                                                        {org}
+                                                                    </Label>
+                                                                </div>
+                                                            ))
+                                                        ) : (
+                                                            <div className="text-sm text-gray-500 text-center py-2">
+                                                                No organizations found
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <Button
-                                type="submit"
-                                className="w-full h-12 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-medium transition-all duration-200 transform hover:scale-[1.02]"
-                            >
-                                Create Account
-                            </Button>
+                            <div className="flex justify-center pt-4">
+                                <Button
+                                    type="submit"
+                                    className="w-full max-w-md h-12 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-medium transition-all duration-200 transform hover:scale-[1.02]"
+                                >
+                                    Create Account
+                                </Button>
+                            </div>
                         </form>
 
                         <div className="text-center">
                             <button
                                 type="button"
-                                onClick={() => gotoLogin()}
-                                className="text-sm text-blue-600 hover:text-blue-700 transition-colors font-medium"
+                                onClick={() => gotoSignIn()}
+                                className="text-sm text-blue-600 cursor-pointer hover:text-blue-700 transition-colors font-medium"
                             >
                                 Already have an account? Sign in
                             </button>
