@@ -33,6 +33,7 @@ import {
 import { signIn, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useAuth } from "../context/AuthProvider";
 
 const statusIcons = {
     Active: CheckCircle,
@@ -40,7 +41,7 @@ const statusIcons = {
     Pending: AlertCircle
 };
 
-export default function ManageRolesPage({ session, loading }: { session: any, loading: boolean }) {
+export default function ManageRolesPage() {
     const [users, setUsers] = useState(mockUsers);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedRole, setSelectedRole] = useState("all");
@@ -49,6 +50,7 @@ export default function ManageRolesPage({ session, loading }: { session: any, lo
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [editingRoles, setEditingRoles] = useState<string[]>([]);
     const router = useRouter();
+    const { session, loading } = useAuth();
 
     // Filter users based on search and filters
     const filteredUsers = users.filter(user => {
@@ -147,13 +149,16 @@ export default function ManageRolesPage({ session, loading }: { session: any, lo
                             </p>
                         </div>
                         <div className="flex gap-3">
-                            <Button
-                                onClick={() => router.push("/console")}
-                                className="bg-gradient-to-r cursor-pointer from-violet-600 to-gray-600 hover:from-blue-700 hover:to-green-700 text-white"
-                            >
-                                <Settings className="w-4 h-4 mr-2" />
-                                Console
-                            </Button>
+                            {
+                                session &&
+                                <Button
+                                    onClick={() => router.push("/console")}
+                                    className="bg-gradient-to-r cursor-pointer from-violet-600 to-gray-600 hover:from-blue-700 hover:to-green-700 text-white"
+                                >
+                                    <Settings className="w-4 h-4 mr-2" />
+                                    Console
+                                </Button>
+                            }
                             <Button
                                 onClick={() => router.push("/register")}
                                 className="bg-gradient-to-r cursor-pointer from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
