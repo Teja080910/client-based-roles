@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import {
     Table,
     TableBody,
@@ -13,24 +12,44 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { ClientType } from '@/lib/interface';
 import {
-    Settings,
+    Edit,
+    Eye,
+    Globe,
+    Key,
     Plus,
     Search,
-    Eye,
-    Edit,
-    Trash2,
+    Settings,
     Shield,
-    Key,
-    Globe
+    Trash2
 } from 'lucide-react';
-import { mockClients } from '@/lib/mock-data';
+import { useEffect, useState } from 'react';
 
 export default function ClientsPage() {
     const [searchTerm, setSearchTerm] = useState('');
-    const [clients] = useState(mockClients);
+    const [clients, setClients] = useState<ClientType[]>([]);
 
-    const filteredClients = clients.filter(client =>
+    useEffect(() => {
+        fetchClients()
+    }, [])
+
+    const fetchClients = async () => {
+        try {
+            const response = await fetch('/api/keycloak/clients');
+            if (!response.ok) {
+                throw new Error('Failed to fetch clients');
+            }
+            const data = await response.json();
+            console.log('Fetched clients:', data);
+            setClients(data);
+        } catch (error) {
+            console.error('Error fetching clients:', error);
+            return [];
+        }
+    }
+
+    const filteredClients = clients?.filter(client =>
         client.clientId.toLowerCase().includes(searchTerm.toLowerCase()) ||
         client.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         client.description?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -45,7 +64,7 @@ export default function ClientsPage() {
                         Manage OAuth/OIDC client applications and their configurations
                     </p>
                 </div>
-                <Button className="bg-blue-600 hover:bg-blue-700">
+                <Button className="bg-blue-600 hover:bg-blue-700 cursor-pointer">
                     <Plus className="mr-2 h-4 w-4" />
                     Create Client
                 </Button>
@@ -86,7 +105,7 @@ export default function ClientsPage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {filteredClients.map((client) => (
+                                {filteredClients?.map((client) => (
                                     <TableRow key={client.id}>
                                         <TableCell>
                                             <div className="flex items-center space-x-2">
@@ -155,7 +174,7 @@ export default function ClientsPage() {
                         </Table>
                     </div>
 
-                    {filteredClients.length === 0 && (
+                    {filteredClients?.length === 0 && (
                         <div className="text-center py-8">
                             <Settings className="mx-auto h-12 w-12 text-gray-400" />
                             <h3 className="mt-2 text-sm font-medium text-gray-900">No clients found</h3>
@@ -164,7 +183,7 @@ export default function ClientsPage() {
                             </p>
                             {!searchTerm && (
                                 <div className="mt-6">
-                                    <Button className="bg-blue-600 hover:bg-blue-700">
+                                    <Button className="bg-blue-600 hover:bg-blue-700 cursor-pointer">
                                         <Plus className="mr-2 h-4 w-4" />
                                         Create Client
                                     </Button>
@@ -185,7 +204,7 @@ export default function ClientsPage() {
                         <Settings className="h-4 w-4 text-gray-400" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-gray-900">{clients.length}</div>
+                        <div className="text-2xl font-bold text-gray-900">{clients?.length}</div>
                         <p className="text-xs text-gray-500 mt-1">
                             Registered applications
                         </p>

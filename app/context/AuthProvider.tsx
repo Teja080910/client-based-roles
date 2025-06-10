@@ -1,6 +1,6 @@
 "use client";
 
-import { getSession } from "next-auth/react";
+import { getSession, signOut } from "next-auth/react";
 import { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext<any>(null);
@@ -10,13 +10,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchSession = async () => {
+    const checkSession = async () => {
       const session = await getSession();
-      setSession(session);
-      setLoading(false);
+
+      if (!session) {
+        signOut({ callbackUrl: "/" });
+      } else {
+        setSession(session);
+        setLoading(false);
+      }
     };
 
-    fetchSession();
+    checkSession();
+
+    const interval = setInterval(() => {
+      checkSession();
+    },  30 * 1000);
+
+    return () => clearInterval(interval);
   }, []);
 
   return (
