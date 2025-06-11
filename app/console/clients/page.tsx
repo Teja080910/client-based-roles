@@ -3,6 +3,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import {
     Table,
@@ -12,7 +13,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { ClientType } from '@/lib/interface';
+import { Client } from '@/types/interfaces';
 import {
     Edit,
     Eye,
@@ -28,7 +29,10 @@ import { useEffect, useState } from 'react';
 
 export default function ClientsPage() {
     const [searchTerm, setSearchTerm] = useState('');
-    const [clients, setClients] = useState<ClientType[]>([]);
+    const [clients, setClients] = useState<Client[]>([]);
+    const [open, setOpen] = useState(false);
+    const [clientId, setClientId] = useState("");
+    const [name, setName] = useState("");
 
     useEffect(() => {
         fetchClients()
@@ -41,11 +45,33 @@ export default function ClientsPage() {
                 throw new Error('Failed to fetch clients');
             }
             const data = await response.json();
-            console.log('Fetched clients:', data);
             setClients(data);
         } catch (error) {
             console.error('Error fetching clients:', error);
             return [];
+        }
+    }
+
+    const handleCreate = async () => {
+        try {
+            const response = await fetch('/api/keycloak/clients', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    clientId,
+                    name,
+                }),
+            });
+            if (!response.ok) {
+                throw new Error('Failed to create client');
+            }
+            const newClient = await response.json();
+            setClients((prev) => [...prev, newClient]);
+            setOpen(false);
+        } catch (error) {
+            console.error('Error creating client:', error);
         }
     }
 
@@ -64,10 +90,40 @@ export default function ClientsPage() {
                         Manage OAuth/OIDC client applications and their configurations
                     </p>
                 </div>
-                <Button className="bg-blue-600 hover:bg-blue-700 cursor-pointer">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Create Client
-                </Button>
+
+                <Dialog open={open} onOpenChange={setOpen}>
+                    <DialogTrigger asChild>
+                        <Button className="bg-blue-600 hover:bg-blue-700 cursor-pointer">
+                            <Plus className="mr-2 h-4 w-4" />
+                            Create Client
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Create New Client</DialogTitle>
+                        </DialogHeader>
+
+                        <div className="space-y-4">
+                            <Input
+                                placeholder="Client ID"
+                                value={clientId}
+                                onChange={(e) => setClientId(e.target.value)}
+                            />
+                            <Input
+                                placeholder="Client Name"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                            />
+                        </div>
+
+                        <DialogFooter className="mt-4">
+                            <Button variant="outline" onClick={() => setOpen(false)}>
+                                Cancel
+                            </Button>
+                            <Button onClick={handleCreate}>Create</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </div>
 
             {/* Search and Filters */}
@@ -183,7 +239,7 @@ export default function ClientsPage() {
                             </p>
                             {!searchTerm && (
                                 <div className="mt-6">
-                                    <Button className="bg-blue-600 hover:bg-blue-700 cursor-pointer">
+                                    <Button className="bg-blue-600 hover:bg-blue-700 cursor-pointer" onClick={() => setOpen(true)}>
                                         <Plus className="mr-2 h-4 w-4" />
                                         Create Client
                                     </Button>

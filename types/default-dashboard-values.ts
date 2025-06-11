@@ -79,3 +79,12 @@ export const statusColors = {
   Inactive: "bg-red-100 text-red-800",
   Pending: "bg-yellow-100 text-yellow-800"
 };
+
+export const excludedClients = [
+  'account',
+  'account-console',
+  'admin-cli',
+  'broker',
+  'realm-management',
+  'security-admin-console'
+];
