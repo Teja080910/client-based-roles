@@ -60,20 +60,37 @@ export const POST = async (req: NextRequest) => {
             }
         }
 
+        // Copy scopes
+        console.log('Copying scopes...', copyData.scopes);
+        const existingScopes = await kcAdminClient.clients.listAllScopes({ id: clientid });
+        const scopeNames = existingScopes.map((scope: any) => scope.name);
+        for (const scope of copyData.scopes) {
+            if (!scopeNames.includes(scope.name)) {
+                await kcAdminClient.clients.createAuthorizationScope(
+                    { id: clientid },
+                    {
+                        name: scope.name,
+                        displayName: scope.displayName || '',
+                        iconUri: scope.iconUri || '',
+                    }
+                );
+                console.log(`Scope ${scope.name} copied successfully.`);
+            } else {
+                console.log(`Scope ${scope.name} already exists, skipping copy.`);
+            }
+        }
+
         // Copy policies
         console.log('Copying policies...', copyData.policies);
         const existingPolicies = await kcAdminClient.clients.listPolicies({ id: clientid });
         const policyNames = existingPolicies.map((policy: any) => policy.name);
         for (const policy of copyData.policies) {
             if (!policyNames.includes(policy.name)) {
-                const scope = await kcAdminClient.clients.createAuthorizationScope(
-                    { id: clientid },
-                    {
-                        name: policy.name,
-                        displayName: policy.displayName,
-                        iconUri: policy.iconUri
-                    }
-                );
+                const create = await kcAdminClient.clients.createOrUpdatePolicy({
+                    id: clientid,
+                    policyName: policy.name,
+                    policy: policy
+                });
                 console.log(`Policy ${policy.name} copied successfully.`);
             } else {
                 console.log(`Policy ${policy.name} already exists, skipping copy.`);
