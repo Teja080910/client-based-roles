@@ -86,10 +86,17 @@ export const POST = async (req: NextRequest) => {
         const policyNames = existingPolicies.map((policy: any) => policy.name);
         for (const policy of copyData.policies) {
             const {id, ...policyData} = policy;
-            if (!policyNames.includes(policy.name)) {
+            if (!policyNames.includes(policy.name) && (policy.type === 'role' || policy.type === 'js')) {
                 const create = await kcAdminClient.clients.createPolicy(
                     { id: clientid, type: policy.type },
-                    policyData
+                    {name: policy.name,
+                    description: policy.description || '',
+                    logic: policy.logic || 'POSITIVE',
+                    decisionStrategy: policy.decisionStrategy || 'UNANIMOUS',
+                    resources: policy.resources || [],
+                    scopes: policy.scopes || [],
+                    type: policy.type,
+                }
                 );
                 console.log(`Policy ${policy.name} copied successfully.`);
             } else {
@@ -97,20 +104,25 @@ export const POST = async (req: NextRequest) => {
             }
         }
 
-        // Copy resources
-        // console.log('Copying resources...', copyData.resources);
-        // const existingResources = await kcAdminClient.clients.listResources({ id: clientid });
-        // const resourceNames = existingResources.map((resource: any) => resource.name);
-        // for (const resource of copyData.resources) {
-        //     if (!resourceNames.includes(resource.name)) {
-        //         await kcAdminClient.clients.createResource({ id: clientid }, {
-        //             ...resource
-        //         });
-        //         console.log(`Resource ${resource.name} copied successfully.`);
-        //     } else {
-        //         console.log(`Resource ${resource.name} already exists, skipping copy.`);
-        //     }
-        // }
+        console.log('Copying resources...', copyData.resources);
+        const existingResources = await kcAdminClient.clients.listResources({ id: clientid });
+        const resourceNames = existingResources.map((resource: any) => resource.name);
+        for (const resource of copyData.resources) {
+            if (!resourceNames.includes(resource.name)) {
+                await kcAdminClient.clients.createResource({ id: clientid }, {
+                    name: resource.name,
+                    displayName: resource.displayName || '',
+                    icon_uri: resource.iconUri || '',
+                    type: resource.type || 'urn:ietf:params:oauth:resource-type:default',
+                    ownerManagedAccess: resource.ownerManagedAccess || false,
+                    attributes: resource.attributes || {},
+                    scopes: resource.scopes || [],
+                });
+                console.log(`Resource ${resource.name} copied successfully.`);
+            } else {
+                console.log(`Resource ${resource.name} already exists, skipping copy.`);
+            }
+        }
 
 
         return NextResponse.json({ success: true, clientId: clientid, name, copyData }, { status: 200 });
