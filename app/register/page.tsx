@@ -8,8 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { countries, organizationsByCountry } from "@/types/defaut-values";
-import { Building, Eye, EyeOff, Globe, Lock, Mail, Router, Search, User, UserPlus, X } from "lucide-react";
-import { signIn } from "next-auth/react";
+import { Building, Eye, EyeOff, Globe, Lock, Mail, Search, User, UserPlus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 

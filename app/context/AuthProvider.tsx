@@ -12,13 +12,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const checkSession = async () => {
       const session = await getSession();
+      setSession(session);
+      setLoading(false);
 
-      if (!session) {
-        signOut({ callbackUrl: "/" });
-      } else {
-        setSession(session);
-        setLoading(false);
-      }
+      // if (!session) {
+      //   signOut({ callbackUrl: "/" });
+      // } else {
+      //   setSession(session);
+      //   setLoading(false);
+      // }
     };
 
     checkSession();

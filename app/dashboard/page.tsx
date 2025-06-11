@@ -20,7 +20,6 @@ import {
     Crown,
     Edit,
     Globe,
-    LogIn,
     LogOut,
     Search,
     Settings,
@@ -30,7 +29,7 @@ import {
     Users,
     XCircle
 } from "lucide-react";
-import { signIn, signOut } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "../context/AuthProvider";
