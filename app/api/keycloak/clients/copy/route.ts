@@ -85,12 +85,12 @@ export const POST = async (req: NextRequest) => {
         const existingPolicies = await kcAdminClient.clients.listPolicies({ id: clientid });
         const policyNames = existingPolicies.map((policy: any) => policy.name);
         for (const policy of copyData.policies) {
+            const {id, ...policyData} = policy;
             if (!policyNames.includes(policy.name)) {
-                const create = await kcAdminClient.clients.createOrUpdatePolicy({
-                    id: clientid,
-                    policyName: policy.name,
-                    policy: policy
-                });
+                const create = await kcAdminClient.clients.createPolicy(
+                    { id: clientid, type: policy.type },
+                    policyData
+                );
                 console.log(`Policy ${policy.name} copied successfully.`);
             } else {
                 console.log(`Policy ${policy.name} already exists, skipping copy.`);
@@ -116,7 +116,7 @@ export const POST = async (req: NextRequest) => {
         return NextResponse.json({ success: true, clientId: clientid, name, copyData }, { status: 200 });
 
     } catch (error: any) {
-        console.error('Error in POST request:', error);
+        console.log('🔴 Error in POST request:', error.response || error);
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
