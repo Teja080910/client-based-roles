@@ -3,9 +3,9 @@ import { excludedClients } from "@/types/default-dashboard-values";
 import { NextRequest, NextResponse } from "next/server";
 
 export const GET = async (req: NextRequest) => {
-  const kcAdminClient = await getKeycloakClient();
-  const clients = await kcAdminClient.clients.find();
   try {
+    const kcAdminClient = await getKeycloakClient();
+    const clients = await kcAdminClient.clients.find();
     const myClients = clients.filter(
       (client: any) => !excludedClients.includes(client.clientId || '')
     );
@@ -17,9 +17,9 @@ export const GET = async (req: NextRequest) => {
 };
 
 export const POST = async (req: NextRequest) => {
-  const kcAdminClient = await getKeycloakClient();
-  const { clientId, name } = await req.json();
   try {
+    const kcAdminClient = await getKeycloakClient();
+    const { clientId, name } = await req.json();
     const newClient = await kcAdminClient.clients.create({
       clientId,
       name,
@@ -33,9 +33,9 @@ export const POST = async (req: NextRequest) => {
 };
 
 export const DELETE = async (req: NextRequest) => {
-  const kcAdminClient = await getKeycloakClient();
-  const { clientId } = await req.json();
   try {
+    const kcAdminClient = await getKeycloakClient();
+    const { clientId } = await req.json();
     await kcAdminClient.clients.del({ id: clientId });
     return NextResponse.json({ success: true });
   } catch (error: any) {
@@ -45,9 +45,9 @@ export const DELETE = async (req: NextRequest) => {
 };
 
 export const PUT = async (req: NextRequest) => {
-  const kcAdminClient = await getKeycloakClient();
-  const { clientId, updatedClient } = await req.json();
   try {
+    const kcAdminClient = await getKeycloakClient();
+    const { clientId, updatedClient } = await req.json();
     await kcAdminClient.clients.update({ id: clientId }, updatedClient);
     return NextResponse.json({ success: true });
   } catch (error: any) {
@@ -58,9 +58,9 @@ export const PUT = async (req: NextRequest) => {
 
 // disable client
 export const PATCH = async (req: NextRequest) => {
-  const kcAdminClient = await getKeycloakClient();
-  const { clientId, enabled } = await req.json();
   try {
+    const kcAdminClient = await getKeycloakClient();
+    const { clientId, enabled } = await req.json();
     await kcAdminClient.clients.update({ id: clientId }, { enabled });
     return NextResponse.json({ success: true });
   } catch (error: any) {

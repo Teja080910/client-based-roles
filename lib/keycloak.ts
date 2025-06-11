@@ -1,3 +1,4 @@
+// lib/getKeycloakClient.ts
 import KcAdminClient from "keycloak-admin";
 
 export async function getKeycloakClient() {

@@ -1,5 +1,6 @@
 'use client';
 
+import { CreateResourceDialog } from '@/components/console/resource-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -121,10 +122,7 @@ export default function ResourcesPage() {
             Manage protected resources and their associated scopes
           </p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700">
-          <Plus className="mr-2 h-4 w-4" />
-          Create Resource
-        </Button>
+        <CreateResourceDialog fetchData={() => fetchResources()} />
       </div>
 
       {/* Stats Cards */}

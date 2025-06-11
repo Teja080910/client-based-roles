@@ -1,5 +1,6 @@
 'use client';
 
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -10,6 +11,8 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Client } from '@/types/interfaces';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -18,12 +21,25 @@ export default function RealmsPage() {
   const [newRealm, setNewRealm] = useState('');
   const [open, setOpen] = useState(false);
   const [selectedRealm, setSelectedRealm] = useState<string | null>(null);
+  const [clients, setClients] = useState<Client[]>([]);
+  const router = useRouter()
 
   const fetchRealms = async () => {
     const res = await fetch('/api/keycloak/realms');
     const data = await res.json();
+    console.log('Fetched realms:', data);
     setRealms(data);
   };
+
+  // fetch clients for a  selected realm
+  const fetchClients = async (realm: string) => {
+    const res = await fetch(`/api/keycloak/realms/clients?realm=${realm}`);
+    const data = await res.json();
+    console.log(`Fetched clients for realm ${realm}:`, data);
+    setClients(data);
+  };
+
+  console.log('clients:', clients);
 
   const createRealm = async () => {
     const res = await fetch('/api/keycloak/realms', {
@@ -84,48 +100,102 @@ export default function RealmsPage() {
         </Dialog>
       </div>
 
-      <div className="grid gap-2">
-        {realms.length > 0 && realms?.map((realm: any) => (
-          <div
-            key={realm.id}
-            className="flex justify-between items-center border p-4 rounded-lg shadow-sm"
-          >
-            <div>{realm.realm}</div>
-            <div className="space-x-2">
-              {/* Simulated edit */}
-              <Dialog
-                open={selectedRealm === realm.realm}
-                onOpenChange={(open) =>
-                  setSelectedRealm(open ? realm.realm : null)
-                }
-              >
-                <DialogTrigger asChild>
-                  <Button variant="outline">Edit</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Edit Realm (Not Supported)</DialogTitle>
-                  </DialogHeader>
-                  <p className="text-sm text-muted-foreground">
-                    Keycloak does not allow renaming realms directly. You must
-                    export the realm and re-import under a new name.
-                  </p>
-                  <DialogFooter className="mt-4">
-                    <Button onClick={() => setSelectedRealm(null)}>OK</Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
+      <Accordion type="single" collapsible className="w-full" onValueChange={(value) => {
+        if (value) {
+          setClients([])
+          fetchClients(value);
+        }
+      }}>
+        {realms.map((realm: any) => (
+          <AccordionItem key={realm.id} value={realm.realm}>
+            <AccordionTrigger>{realm.realm}</AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-2">
+                {/* Actions: Edit / Delete */}
+                <div className="flex justify-end space-x-2">
+                  <Dialog
+                    open={selectedRealm === realm.realm}
+                    onOpenChange={(open) =>
+                      setSelectedRealm(open ? realm.realm : null)
+                    }
+                  >
+                    <DialogTrigger asChild>
+                      <Button variant="outline">Edit</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Edit Realm (Not Supported)</DialogTitle>
+                      </DialogHeader>
+                      <p className="text-sm text-muted-foreground">
+                        Keycloak does not allow renaming realms directly. You must
+                        export the realm and re-import under a new name.
+                      </p>
+                      <DialogFooter className="mt-4">
+                        <Button onClick={() => setSelectedRealm(null)}>OK</Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
 
-              <Button
-                variant="destructive"
-                onClick={() => deleteRealm(realm.realm)}
-              >
-                Delete
-              </Button>
-            </div>
-          </div>
+                  <Button
+                    variant="destructive"
+                    onClick={() => deleteRealm(realm.realm)}
+                  >
+                    Delete
+                  </Button>
+                </div>
+
+                {/* Clients */}
+                <div className="border rounded-xl bg-muted/40 p-4 shadow-sm">
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-lg font-semibold text-primary">Clients</h2>
+                    <span className="text-sm text-muted-foreground">
+                      {clients?.length ?? 0} {clients?.length === 1 ? "client" : "clients"}
+                    </span>
+                  </div>
+
+                  {clients && clients.length > 0 ? (
+                    <ul className="space-y-2">
+                      {clients.map((client: any) => (
+                        <li
+                          key={client.id}
+                          className="flex items-center justify-between bg-white dark:bg-background border rounded-lg p-3 hover:shadow transition"
+                        >
+                          <div className="flex items-center space-x-2">
+                            <span className="font-medium text-sm text-foreground">
+                              {client.clientId}
+                            </span>
+                            {/* Optional client description or type */}
+                            {client.description && (
+                              <span className="text-xs text-muted-foreground">
+                                – {client.description}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Actions (optional) */}
+                          <div className="space-x-2">
+                            <Button size="sm" variant="outline" onClick={()=> router.push(`/console/clients/${client.clientId}`)}>
+                              View
+                            </Button>
+                            <Button size="sm" variant="destructive">
+                              Delete
+                            </Button>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <div className="text-sm text-muted-foreground text-center py-4">
+                      No clients found for this realm.
+                    </div>
+                  )}
+                </div>
+
+              </div>
+            </AccordionContent>
+          </AccordionItem>
         ))}
-      </div>
+      </Accordion>
     </div>
   );
 }
