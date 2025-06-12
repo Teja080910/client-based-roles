@@ -104,6 +104,7 @@ export const POST = async (req: NextRequest) => {
             }
         }
 
+        // Copy resources
         console.log('Copying resources...', copyData.resources);
         const existingResources = await kcAdminClient.clients.listResources({ id: clientid });
         const resourceNames = existingResources.map((resource: any) => resource.name);
@@ -124,6 +125,47 @@ export const POST = async (req: NextRequest) => {
             }
         }
 
+        // Copy permissions
+        console.log('Copying permissions...', copyData.permissions);
+        const token = kcAdminClient.accessToken;
+        const url = `${kcAdminClient.baseUrl}/admin/realms/${kcAdminClient.realmName}/clients/${clientid}/authz/resource-server/permission`;
+        const fetchPermissions = await fetch(url, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        const permissionsData = await fetchPermissions.json();
+        const existingPermissionNames = permissionsData.map((permission: any) => permission.name);
+        for (const permission of copyData.permissions) {
+            if (!existingPermissionNames.includes(permission.name)) {
+                const createPermission = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: permission.name,
+                        type: permission.type,
+                        resources: permission.resources || [],
+                        scopes: permission.scopes || [],
+                        policies: permission.policies || [],
+                        decisionStrategy: permission.decisionStrategy || 'UNANIMOUS',
+                        logic: permission.logic || 'POSITIVE',
+                    }),
+                });
+                if (!createPermission.ok) {
+                    const errorData = await createPermission.json();
+                    throw new Error(`Failed to create permission ${permission.name}: ${errorData.error}`);
+                }
+                console.log(`Permission ${permission.name} copied successfully.`);
+            } else {
+                console.log(`Permission ${permission.name} already exists, skipping copy.`);
+            }
+        }
+        console.log('All copy operations completed successfully.');
 
         return NextResponse.json({ success: true, clientId: clientid, name, copyData }, { status: 200 });
 

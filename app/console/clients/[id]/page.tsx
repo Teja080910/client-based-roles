@@ -146,7 +146,7 @@ export default function ClientsDashboard() {
                 throw new Error('Failed to fetch permissions');
             }
             const data = await res.json();
-            console.log(data);
+            setPermissions(data);
         } catch (error) {
             console.error('Error fetching permissions:', error);
         }
@@ -176,7 +176,8 @@ export default function ClientsDashboard() {
             roles: [...roles?.defaultRoles, ...roles?.customRoles],
             scopes: [...scopes?.defaultScopes, ...scopes?.customScopes],
             resources: [...resources?.defaultResources, ...resources?.customResources],
-            policies: [...policies?.defaultPolicies, ...policies?.customPolicies]
+            policies: [...policies?.defaultPolicies, ...policies?.customPolicies],
+            permissions: [...permissions?.defaultPermissions, ...permissions?.customPermissions],
         };
 
         console.log('Copy Client Data:', newCopyClient);
