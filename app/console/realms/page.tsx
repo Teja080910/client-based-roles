@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import CreateClientDialog from '../clients/create-client-dialog';
+import { Eye, Pencil, Trash2 } from 'lucide-react';
 
 export default function RealmsPage() {
   const [realms, setRealms] = useState([]);
@@ -63,7 +64,7 @@ export default function RealmsPage() {
   const deleteRealm = async (realm: string) => {
     const res = await fetch(`/api/keycloak/realms`, {
       method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ realm }),
     });
     if (res.ok) {
@@ -115,19 +116,31 @@ export default function RealmsPage() {
         </Dialog>
       </div>
 
-      <Accordion type="single" collapsible className="w-full" onValueChange={(value) => {
-        if (value) {
-          setClients([])
-          setRealm(value);
-          fetchClients(value);
-        }
-      }}>
+      <Accordion
+        type="single"
+        collapsible
+        className="w-full"
+        onValueChange={(value) => {
+          if (value) {
+            setClients([]);
+            setRealm(value);
+            fetchClients(value);
+          }
+        }}
+      >
         {realms.map((realm: any) => (
-          <AccordionItem key={realm.id} value={realm.realm}>
-            <AccordionTrigger>{realm.realm}</AccordionTrigger>
-            <AccordionContent>
-              <div className="space-y-2">
-                {/* Actions: Edit / Delete */}
+          <AccordionItem
+            key={realm.id}
+            value={realm.realm}
+            className="rounded-xl border border-border bg-muted/20 p-2 shadow-sm my-2"
+          >
+            <AccordionTrigger className="text-lg font-semibold px-2">
+              {realm.realm}
+            </AccordionTrigger>
+            <AccordionContent className="px-4">
+              <div className="space-y-4 mt-2">
+
+                {/* Edit & Delete Realm Actions */}
                 <div className="flex justify-end space-x-2">
                   <Dialog
                     open={selectedRealm === realm.realm}
@@ -136,15 +149,17 @@ export default function RealmsPage() {
                     }
                   >
                     <DialogTrigger asChild>
-                      <Button variant="outline">Edit</Button>
+                      <Button variant="secondary" className='cursor-pointer'>
+                        <Pencil className="w-4 h-4 mr-1" />
+                        Edit
+                      </Button>
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
                         <DialogTitle>Edit Realm (Not Supported)</DialogTitle>
                       </DialogHeader>
                       <p className="text-sm text-muted-foreground">
-                        Keycloak does not allow renaming realms directly. You must
-                        export the realm and re-import under a new name.
+                        Keycloak does not allow renaming realms directly. You must export the realm and re-import under a new name.
                       </p>
                       <DialogFooter className="mt-4">
                         <Button onClick={() => setSelectedRealm(null)}>OK</Button>
@@ -153,21 +168,22 @@ export default function RealmsPage() {
                   </Dialog>
 
                   <Button
-                    variant="destructive"
+                    variant="destructive" className='cursor-pointer'
                     onClick={() => deleteRealm(realm.realm)}
                   >
+                    <Trash2 className="w-4 h-4 mr-1" />
                     Delete
                   </Button>
                 </div>
 
-                {/* Clients */}
-                <div className="border rounded-xl bg-muted/40 p-4 shadow-sm">
-                  <div className="flex items-center justify-between mb-3">
+                {/* Clients Section */}
+                <div className="border rounded-xl bg-background p-4 shadow-sm">
+                  <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold text-primary">Clients</h2>
-                    <div className='flex items-center gap-8'>
+                    <div className="flex items-center gap-6">
                       <CreateClientDialog fetchData={() => fetchClients(realm)} />
                       <span className="text-sm text-muted-foreground">
-                        {clients?.length ?? 0} {clients?.length === 1 ? "client" : "clients"}
+                        {clients?.length ?? 0} {clients?.length === 1 ? 'client' : 'clients'}
                       </span>
                     </div>
                   </div>
@@ -177,39 +193,43 @@ export default function RealmsPage() {
                       {clients.map((client: any) => (
                         <li
                           key={client.id}
-                          className="flex items-center justify-between bg-white dark:bg-background border rounded-lg p-3 hover:shadow transition"
+                          className="flex items-center justify-between bg-muted/10 border border-border rounded-lg p-3 hover:shadow transition"
                         >
                           <div className="flex items-center space-x-2">
                             <span className="font-medium text-sm text-foreground">
                               {client.clientId}
                             </span>
-                            {/* Optional client description or type */}
                             {client.description && (
                               <span className="text-xs text-muted-foreground">
                                 – {client.description}
                               </span>
                             )}
                           </div>
-
-                          {/* Actions (optional) */}
-                          <div className="space-x-2">
-                            <Button size="sm" variant="outline" onClick={() => router.push(`/console/clients/${client.clientId}`)}>
-                              View
+                          <div className="space-x-2 flex">
+                            <Button
+                              size="sm"
+                              variant="outline" className='cursor-pointer'
+                              onClick={() => router.push(`/console/clients/${client.clientId}`)}
+                            >
+                              <Eye className="w-4 h-4 mr-1" /> View
                             </Button>
-                            <Button size="sm" variant="destructive" onClick={() => deleteClient(client.id)}>
-                              Delete
+                            <Button
+                              size="sm"
+                              variant="destructive" className='cursor-pointer'
+                              onClick={() => deleteClient(client.id)}
+                            >
+                              <Trash2 className="w-4 h-4 mr-1" /> Delete
                             </Button>
                           </div>
                         </li>
                       ))}
                     </ul>
                   ) : (
-                    <div className="text-sm text-muted-foreground text-center py-4">
-                      No clients found for this realm.
+                    <div className="text-sm text-muted-foreground text-center py-4 italic">
+                      No clients found in this realm.
                     </div>
                   )}
                 </div>
-
               </div>
             </AccordionContent>
           </AccordionItem>
