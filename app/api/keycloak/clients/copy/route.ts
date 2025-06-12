@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
     try {
-        const { clientId, name, copyData } = await req.json();
+        const { clientId, name, copyData, description } = await req.json();
 
         if (!clientId || !copyData) {
             return NextResponse.json({ error: "clientId and copyData are required" }, { status: 400 });
@@ -17,24 +17,63 @@ export const POST = async (req: NextRequest) => {
             const createdClient = await kcAdminClient.clients.create({
                 clientId,
                 name,
+                description,
                 enabled: true,
-                protocol: "openid-connect",
-                authorizationServicesEnabled: true,
-                serviceAccountsEnabled: true,
+                clientAuthenticatorType: "client-secret",
+                redirectUris: [
+                    "http://localhost*",
+                    "http://192.168.1.*",
+                    "https://dev-bx-fe.artofliving.org*",
+                    "https://dev-bx.artofliving.org*"
+                ],
+                webOrigins: ["+"],
+                standardFlowEnabled: true,
+                implicitFlowEnabled: false,
                 directAccessGrantsEnabled: true,
+                serviceAccountsEnabled: true,
+                authorizationServicesEnabled: true,
                 publicClient: false,
+                protocol: "openid-connect",
+                attributes: {
+                    "login_theme": "keycloakify-starter",
+                    "post.logout.redirect.uris": "+"
+                },
+                fullScopeAllowed: true,
+                authorizationSettings: {
+                    allowRemoteResourceManagement: true,
+                }
             });
             console.log('Created new client:', createdClient);
             clientid = createdClient.id;
         } else {
             const updatedClient = await kcAdminClient.clients.update({ id: existingClient[0].id! }, {
                 name,
+                description,
                 enabled: true,
-                protocol: "openid-connect",
+                clientAuthenticatorType: "client-secret",
+                redirectUris: [
+                    "http://localhost*",
+                    "http://192.168.1.*",
+                    "https://dev-bx-fe.artofliving.org*",
+                    "https://dev-bx.artofliving.org*"
+                ],
+                webOrigins: ["+"],
+                standardFlowEnabled: true,
+                implicitFlowEnabled: false,
+                directAccessGrantsEnabled: true,
                 serviceAccountsEnabled: true,
                 authorizationServicesEnabled: true,
-                directAccessGrantsEnabled: true,
-                publicClient: false
+                publicClient: false,
+                protocol: "openid-connect",
+                attributes: {
+                    "login_theme": "keycloakify-starter",
+                    "post.logout.redirect.uris": "+"
+                },
+                fullScopeAllowed: true,
+                authorizationSettings: {
+                    allowRemoteResourceManagement: true,
+                }
+
             });
             console.log('Updated existing client:', updatedClient);
             clientid = existingClient[0].id!;
@@ -85,18 +124,19 @@ export const POST = async (req: NextRequest) => {
         const existingPolicies = await kcAdminClient.clients.listPolicies({ id: clientid });
         const policyNames = existingPolicies.map((policy: any) => policy.name);
         for (const policy of copyData.policies) {
-            const {id, ...policyData} = policy;
+            const { id, ...policyData } = policy;
             if (!policyNames.includes(policy.name) && (policy.type === 'role' || policy.type === 'js')) {
-                const create = await kcAdminClient.clients.createPolicy(
+                await kcAdminClient.clients.createPolicy(
                     { id: clientid, type: policy.type },
-                    {name: policy.name,
-                    description: policy.description || '',
-                    logic: policy.logic || 'POSITIVE',
-                    decisionStrategy: policy.decisionStrategy || 'UNANIMOUS',
-                    resources: policy.resources || [],
-                    scopes: policy.scopes || [],
-                    type: policy.type,
-                }
+                    {
+                        name: policy.name,
+                        description: policy.description || '',
+                        logic: policy.logic || 'POSITIVE',
+                        decisionStrategy: policy.decisionStrategy || 'UNANIMOUS',
+                        resources: policy.resources || [],
+                        scopes: policy.scopes || [],
+                        type: policy.type,
+                    }
                 );
                 console.log(`Policy ${policy.name} copied successfully.`);
             } else {

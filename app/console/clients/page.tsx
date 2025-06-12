@@ -90,40 +90,6 @@ export default function ClientsPage() {
                         Manage OAuth/OIDC client applications and their configurations
                     </p>
                 </div>
-
-                <Dialog open={open} onOpenChange={setOpen}>
-                    <DialogTrigger asChild>
-                        <Button className="bg-blue-600 hover:bg-blue-700 cursor-pointer">
-                            <Plus className="mr-2 h-4 w-4" />
-                            Create Client
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Create New Client</DialogTitle>
-                        </DialogHeader>
-
-                        <div className="space-y-4">
-                            <Input
-                                placeholder="Client ID"
-                                value={clientId}
-                                onChange={(e) => setClientId(e.target.value)}
-                            />
-                            <Input
-                                placeholder="Client Name"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                            />
-                        </div>
-
-                        <DialogFooter className="mt-4">
-                            <Button variant="outline" onClick={() => setOpen(false)}>
-                                Cancel
-                            </Button>
-                            <Button onClick={handleCreate}>Create</Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
             </div>
 
             {/* Search and Filters */}

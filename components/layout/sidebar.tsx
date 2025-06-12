@@ -30,10 +30,10 @@ const navigation = [
     description: 'OAuth/OIDC client applications',
   },
   {
-    name: 'Resources',
-    href: '/console/resources',
-    icon: FileText,
-    description: 'Protected resources',
+    name: 'Roles',
+    href: '/console/roles',
+    icon: Key,
+    description: 'Realm and client roles',
   },
   {
     name: 'Scopes',
@@ -48,6 +48,12 @@ const navigation = [
     description: 'Authorization policies',
   },
   {
+    name: 'Resources',
+    href: '/console/resources',
+    icon: FileText,
+    description: 'Protected resources',
+  },
+  {
     name: 'Permissions',
     href: '/console/permissions',
     icon: Lock,
@@ -58,12 +64,6 @@ const navigation = [
     href: '/console/evaluation',
     icon: Gavel,
     description: 'Test authorization policies',
-  },
-  {
-    name: 'Roles',
-    href: '/console/roles',
-    icon: Key,
-    description: 'Realm and client roles',
   },
   {
     name: 'Role Mapping',

@@ -15,6 +15,7 @@ import { Client } from '@/types/interfaces';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import CreateClientDialog from '../clients/create-client-dialog';
 
 export default function RealmsPage() {
   const [realms, setRealms] = useState([]);
@@ -22,7 +23,12 @@ export default function RealmsPage() {
   const [open, setOpen] = useState(false);
   const [selectedRealm, setSelectedRealm] = useState<string | null>(null);
   const [clients, setClients] = useState<Client[]>([]);
-  const router = useRouter()
+  const [realm, setRealm] = useState<string>('');
+  const router = useRouter();
+
+  useEffect(() => {
+    fetchRealms();
+  }, []);
 
   const fetchRealms = async () => {
     const res = await fetch('/api/keycloak/realms');
@@ -38,8 +44,6 @@ export default function RealmsPage() {
     console.log(`Fetched clients for realm ${realm}:`, data);
     setClients(data);
   };
-
-  console.log('clients:', clients);
 
   const createRealm = async () => {
     const res = await fetch('/api/keycloak/realms', {
@@ -59,6 +63,7 @@ export default function RealmsPage() {
   const deleteRealm = async (realm: string) => {
     const res = await fetch(`/api/keycloak/realms`, {
       method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ realm }),
     });
     if (res.ok) {
@@ -69,9 +74,19 @@ export default function RealmsPage() {
     }
   };
 
-  useEffect(() => {
-    fetchRealms();
-  }, []);
+  const deleteClient = async (clientId: string) => {
+    const res = await fetch(`/api/keycloak/realms/clients`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clientId }),
+    });
+    if (res.ok) {
+      toast.success(`Deleted client: ${clientId}`);
+      fetchClients(realm);
+    } else {
+      toast.error(`Failed to delete client: ${clientId}`);
+    }
+  };
 
   return (
     <div className="p-6 space-y-4">
@@ -103,6 +118,7 @@ export default function RealmsPage() {
       <Accordion type="single" collapsible className="w-full" onValueChange={(value) => {
         if (value) {
           setClients([])
+          setRealm(value);
           fetchClients(value);
         }
       }}>
@@ -148,9 +164,12 @@ export default function RealmsPage() {
                 <div className="border rounded-xl bg-muted/40 p-4 shadow-sm">
                   <div className="flex items-center justify-between mb-3">
                     <h2 className="text-lg font-semibold text-primary">Clients</h2>
-                    <span className="text-sm text-muted-foreground">
-                      {clients?.length ?? 0} {clients?.length === 1 ? "client" : "clients"}
-                    </span>
+                    <div className='flex items-center gap-8'>
+                      <CreateClientDialog fetchData={() => fetchClients(realm)} />
+                      <span className="text-sm text-muted-foreground">
+                        {clients?.length ?? 0} {clients?.length === 1 ? "client" : "clients"}
+                      </span>
+                    </div>
                   </div>
 
                   {clients && clients.length > 0 ? (
@@ -174,10 +193,10 @@ export default function RealmsPage() {
 
                           {/* Actions (optional) */}
                           <div className="space-x-2">
-                            <Button size="sm" variant="outline" onClick={()=> router.push(`/console/clients/${client.clientId}`)}>
+                            <Button size="sm" variant="outline" onClick={() => router.push(`/console/clients/${client.clientId}`)}>
                               View
                             </Button>
-                            <Button size="sm" variant="destructive">
+                            <Button size="sm" variant="destructive" onClick={() => deleteClient(client.id)}>
                               Delete
                             </Button>
                           </div>
