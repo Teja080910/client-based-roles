@@ -5,7 +5,8 @@ export const resources = [
     'header',
     'translation',
     'discount-code',
-    'user-specific'
+    'user-specific',
+    'caps',
 ]
 
 export const roles = [
