@@ -9,6 +9,13 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         const defaultRoles = allRoles.filter(role => defaultRoleNames.includes(role.name!));
         const customRoles = allRoles.filter(role => !defaultRoleNames.includes(role.name!));
 
+        const user = await kcAdminClient.users.find()
+        if (user) {
+            console.log(user);
+        } else {
+            console.log('User not found');
+        }
+
         return NextResponse.json({
             defaultRoles,
             customRoles,

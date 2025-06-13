@@ -119,7 +119,7 @@ export const POST = async (req: NextRequest) => {
     // add resource server to the client
     const existingResourceServer = await kcAdminClient.clients.listResources({ id: clientid });
     const resourceNames = resources.filter((resource: any) => !existingResourceServer.some((r: any) => r.name === resource));
-    const scopesList = scopes.map((scope: any) => ({ resource: scope.split(':')[0], scope: scope.split(':')[1] }));
+    const scopesList = scopes.map((scope: any) => ({ resource: scope.split(':')[0], scope: scope }));
     for (const resource of resourceNames) {
       await kcAdminClient.clients.createResource(
         { id: clientid },
@@ -134,11 +134,8 @@ export const POST = async (req: NextRequest) => {
     // add policies to the client
     const existingPolicies = await kcAdminClient.clients.listPolicies({ id: clientid });
     const policyNames = policies.filter((policy: any) => !existingPolicies.some((p: any) => p.name === policy.name));
-    // Copy permissions
-    const token = kcAdminClient.accessToken;
-    const url = `${kcAdminClient.baseUrl}/admin/realms/${kcAdminClient.realmName}/clients/${clientid}/authz/resource-server/permission`;
     for (const policy of policyNames) {
-      if (policy.type !== 'scope') {
+      if (policy.type === 'role') {
         await kcAdminClient.clients.createPolicy(
           { id: clientid, type: policy.type },
           {
@@ -146,28 +143,53 @@ export const POST = async (req: NextRequest) => {
             type: policy.type,
             logic: policy.logic as any,
             decisionStrategy: policy.decisionStrategy! as any,
+            config: {
+              roles: [{ id: "dc4ace7b-3c68-466d-b9a6-7f513d08b162", required: false }],
+            }
+          }
+        );
+      }
+      if (policy.type === 'aggregate') {
+        await kcAdminClient.clients.createPolicy(
+          { id: clientid, type: 'role' },
+          {
+            name: policy.name,
+            type: 'role',
+            logic: policy.logic as any,
+            decisionStrategy: policy.decisionStrategy! as any,
+            config: {
+              applyPolicies: policy.config.applyPolicies || [],
+            }
+          }
+        );
+      }
+      if (policy.type === 'user') {
+        await kcAdminClient.clients.createPolicy(
+          { id: clientid, type: policy.type },
+          {
+            name: policy.name,
+            type: policy.type,
+            logic: policy.logic as any,
+            decisionStrategy: policy.decisionStrategy! as any,
+            config: {
+              users: policy.config.users || [],
+            }
           }
         );
       }
       if (policy.type === 'scope') {
         const resources = policy.config.scopes?.map((scope) => scope.split(':')[0]) || [];
-        const scopes = policy.config.scopes?.map((scope) => scope.split(':')[1]) || [];
-        await fetch(url, {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
+        const scopes = policy.config.scopes?.map((scope) => scope) || [];
+        await kcAdminClient.clients.createPermission(
+          { id: clientid, type: policy.type },
+          {
             name: policy.name,
             type: policy.type,
             resources: resources || [],
             scopes: scopes || [],
             policies: policy.config.applyPolicies || [],
-            decisionStrategy: policy.decisionStrategy || 'UNANIMOUS',
-            logic: policy.logic || 'POSITIVE',
-          }),
-        });
+          }
+        );
       }
     }
     console.log('Added policies to client:', clientid);
@@ -176,7 +198,7 @@ export const POST = async (req: NextRequest) => {
     console.error("🔴 Error creating client:", error.toJSON());
     const kcAdminClient = await getKeycloakClient();
     const existingClient = await kcAdminClient.clients.find({ clientId: clientId });
-    // await kcAdminClient.clients.del({ id: existingClient[0].id! });
+    await kcAdminClient.clients.del({ id: existingClient[0].id! });
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 };

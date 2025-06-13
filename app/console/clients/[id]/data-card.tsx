@@ -18,7 +18,7 @@ export function DataCard({ title, data, type, icon: Icon, searchTerm }: { title:
                     </Badge>
                 </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-3 grid grid-cols-2 gap-10">
                 {filteredData?.map((item) => (
                     <div key={item?.id} className="p-3 border rounded-lg hover:bg-muted/50 transition-colors">
                         <div className="flex items-center justify-between mb-2">

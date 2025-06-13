@@ -280,8 +280,8 @@ export default function ClientsDashboard() {
 
                     {/* Roles Tab */}
                     <TabsContent value="roles" className="space-y-6">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <div>
+                        <div className="grid  gap-6">
+                            {/* <div>
                                 <div className="flex items-center gap-2 mb-4">
                                     <Badge className="bg-blue-100 text-blue-800">Default Roles</Badge>
                                     <span className="text-sm text-muted-foreground">System-defined roles</span>
@@ -293,7 +293,7 @@ export default function ClientsDashboard() {
                                     icon={Users}
                                     searchTerm={searchTerm}
                                 />
-                            </div>
+                            </div> */}
                             <div>
                                 <div className="flex items-center gap-2 mb-4">
                                     <Badge className="bg-green-100 text-green-800">Created Roles</Badge>
@@ -312,8 +312,8 @@ export default function ClientsDashboard() {
 
                     {/* Scopes Tab */}
                     <TabsContent value="scopes" className="space-y-6">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <div>
+                        <div className="grid gap-6">
+                            {/* <div>
                                 <div className="flex items-center gap-2 mb-4">
                                     <Badge className="bg-blue-100 text-blue-800">Default Scopes</Badge>
                                     <span className="text-sm text-muted-foreground">OpenID Connect standard scopes</span>
@@ -325,7 +325,7 @@ export default function ClientsDashboard() {
                                     icon={Key}
                                     searchTerm={searchTerm}
                                 />
-                            </div>
+                            </div> */}
                             <div>
                                 <div className="flex items-center gap-2 mb-4">
                                     <Badge className="bg-green-100 text-green-800">Created Scopes</Badge>
@@ -344,8 +344,8 @@ export default function ClientsDashboard() {
 
                     {/* Resources Tab */}
                     <TabsContent value="resources" className="space-y-6">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <div>
+                        <div className="grid gap-6">
+                            {/* <div>
                                 <div className="flex items-center gap-2 mb-4">
                                     <Badge className="bg-blue-100 text-blue-800">Default Resources</Badge>
                                     <span className="text-sm text-muted-foreground">System resources</span>
@@ -357,7 +357,7 @@ export default function ClientsDashboard() {
                                     icon={FileText}
                                     searchTerm={searchTerm}
                                 />
-                            </div>
+                            </div> */}
                             <div>
                                 <div className="flex items-center gap-2 mb-4">
                                     <Badge className="bg-green-100 text-green-800">Created Resources</Badge>
@@ -376,8 +376,8 @@ export default function ClientsDashboard() {
 
                     {/* Policies Tab */}
                     <TabsContent value="policies" className="space-y-6">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <div>
+                        <div className="grid gap-6">
+                            {/* <div>
                                 <div className="flex items-center gap-2 mb-4">
                                     <Badge className="bg-blue-100 text-blue-800">Default Policies</Badge>
                                     <span className="text-sm text-muted-foreground">System policies</span>
@@ -389,7 +389,7 @@ export default function ClientsDashboard() {
                                     icon={Shield}
                                     searchTerm={searchTerm}
                                 />
-                            </div>
+                            </div> */}
                             <div>
                                 <div className="flex items-center gap-2 mb-4">
                                     <Badge className="bg-green-100 text-green-800">Created Policies</Badge>
@@ -408,8 +408,8 @@ export default function ClientsDashboard() {
 
                     {/* Permissions Tab */}
                     <TabsContent value="permissions" className="space-y-6">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <div>
+                        <div className="grid gap-6">
+                            {/* <div>
                                 <div className="flex items-center gap-2 mb-4">
                                     <Badge className="bg-blue-100 text-blue-800">Default Permissions</Badge>
                                     <span className="text-sm text-muted-foreground">System permissions</span>
@@ -421,7 +421,7 @@ export default function ClientsDashboard() {
                                     icon={Settings}
                                     searchTerm={searchTerm}
                                 />
-                            </div>
+                            </div> */}
                             <div>
                                 <div className="flex items-center gap-2 mb-4">
                                     <Badge className="bg-green-100 text-green-800">Created Permissions</Badge>

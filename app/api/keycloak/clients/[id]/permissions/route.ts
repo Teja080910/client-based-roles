@@ -11,19 +11,12 @@ export const GET = async (req: NextRequest, { params }: { params: { id: string }
     }
 
     const kc = await getKeycloakClient();
-    const token = kc.accessToken;
 
-    const url = `${kc.baseUrl}/admin/realms/${kc.realmName}/clients/${clientId}/authz/resource-server/permission`;
-
-    const response = await axios.get(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await kc.clients.findPermissions({ id: clientId });
 
     const defaultPermissionsList = ['Default Permission'];
 
-    const responseData = response.data;
+    const responseData = response;
     const defaultPermissions = responseData.filter((permission: any) =>
       defaultPermissionsList.includes(permission.name)
     );

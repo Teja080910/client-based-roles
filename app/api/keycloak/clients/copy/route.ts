@@ -2,13 +2,12 @@ import { getKeycloakClient } from "@/lib/keycloak";
 import { NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
+    const { clientId, name, copyData, description } = await req.json();
+    if (!clientId || !copyData) {
+        return NextResponse.json({ error: "clientId and copyData are required" }, { status: 400 });
+    }
+
     try {
-        const { clientId, name, copyData, description } = await req.json();
-
-        if (!clientId || !copyData) {
-            return NextResponse.json({ error: "clientId and copyData are required" }, { status: 400 });
-        }
-
         const kcAdminClient = await getKeycloakClient();
         const existingClient = await kcAdminClient.clients.find({ clientId: clientId });
         let clientid;
@@ -91,7 +90,8 @@ export const POST = async (req: NextRequest) => {
                     description: role.description || '',
                     composite: role.composite || false,
                     clientRole: role.clientRole || false,
-                    attributes: role.attributes || {}
+                    containerId: role.containerId || clientid,
+                    // attributes: role.attributes || {}
                 });
                 console.log(`Role ${role.name} copied successfully.`);
             } else {
@@ -109,13 +109,34 @@ export const POST = async (req: NextRequest) => {
                     { id: clientid },
                     {
                         name: scope.name,
-                        displayName: scope.displayName || '',
-                        iconUri: scope.iconUri || '',
+                        // displayName: scope.displayName || '',
+                        // iconUri: scope.iconUri || '',
                     }
                 );
                 console.log(`Scope ${scope.name} copied successfully.`);
             } else {
                 console.log(`Scope ${scope.name} already exists, skipping copy.`);
+            }
+        }
+
+        // Copy resources
+        console.log('Copying resources...', copyData.resources);
+        const existingResources = await kcAdminClient.clients.listResources({ id: clientid });
+        const resourceNames = existingResources.map((resource: any) => resource.name);
+        for (const resource of copyData.resources) {
+            if (!resourceNames.includes(resource.name)) {
+                await kcAdminClient.clients.createResource({ id: clientid }, {
+                    name: resource.name,
+                    displayName: resource.displayName || '',
+                    // icon_uri: resource.iconUri || '',
+                    type: resource.type || 'urn:ietf:params:oauth:resource-type:default',
+                    ownerManagedAccess: resource.ownerManagedAccess || true,
+                    attributes: resource.attributes || {},
+                    scopes: resource.scopes || [],
+                });
+                console.log(`Resource ${resource.name} copied successfully.`);
+            } else {
+                console.log(`Resource ${resource.name} already exists, skipping copy.`);
             }
         }
 
@@ -133,35 +154,14 @@ export const POST = async (req: NextRequest) => {
                         description: policy.description || '',
                         logic: policy.logic || 'POSITIVE',
                         decisionStrategy: policy.decisionStrategy || 'UNANIMOUS',
-                        resources: policy.resources || [],
-                        scopes: policy.scopes || [],
+                        // resources: policy.resources || [],
+                        // scopes: policy.scopes || [],
                         type: policy.type,
                     }
                 );
                 console.log(`Policy ${policy.name} copied successfully.`);
             } else {
                 console.log(`Policy ${policy.name} already exists, skipping copy.`);
-            }
-        }
-
-        // Copy resources
-        console.log('Copying resources...', copyData.resources);
-        const existingResources = await kcAdminClient.clients.listResources({ id: clientid });
-        const resourceNames = existingResources.map((resource: any) => resource.name);
-        for (const resource of copyData.resources) {
-            if (!resourceNames.includes(resource.name)) {
-                await kcAdminClient.clients.createResource({ id: clientid }, {
-                    name: resource.name,
-                    displayName: resource.displayName || '',
-                    icon_uri: resource.iconUri || '',
-                    type: resource.type || 'urn:ietf:params:oauth:resource-type:default',
-                    ownerManagedAccess: resource.ownerManagedAccess || false,
-                    attributes: resource.attributes || {},
-                    scopes: resource.scopes || [],
-                });
-                console.log(`Resource ${resource.name} copied successfully.`);
-            } else {
-                console.log(`Resource ${resource.name} already exists, skipping copy.`);
             }
         }
 
