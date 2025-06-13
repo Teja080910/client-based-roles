@@ -1,8 +1,8 @@
 "use client";
 
-import ManageRolesPage from "./dashboard/page";
+import DashboardPage from "./dashboard/page";
 
 export default function Home() {
 
-  return <ManageRolesPage />;
+  return <DashboardPage />;
 }

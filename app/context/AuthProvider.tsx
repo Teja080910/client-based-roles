@@ -1,6 +1,6 @@
 "use client";
 
-import { getSession, signOut } from "next-auth/react";
+import { getSession } from "next-auth/react";
 import { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext<any>(null);
@@ -8,6 +8,7 @@ const AuthContext = createContext<any>(null);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState('');
 
   useEffect(() => {
     const checkSession = async () => {

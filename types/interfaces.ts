@@ -40,6 +40,7 @@ export interface Client {
   id: string;
   clientId: string;
   name?: string;
+  realm: string;
   description?: string;
   enabled: boolean;
   alwaysDisplayInConsole: boolean;
