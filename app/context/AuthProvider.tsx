@@ -26,11 +26,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     checkSession();
 
-    const interval = setInterval(() => {
-      checkSession();
-    },  30 * 1000);
+    // const interval = setInterval(() => {
+    //   checkSession();
+    // },  30 * 1000);
 
-    return () => clearInterval(interval);
+    // return () => clearInterval(interval);
   }, []);
 
   return (

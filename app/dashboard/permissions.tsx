@@ -7,7 +7,6 @@ export interface Permissions {
 }
 
 export const PermissionMatrix = ({ actions, clientName }: { actions: Permissions[], clientName: string }) => {
-  console.log('Rendering PermissionMatrix with actions:', actions);
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200">
       <div className="px-6 py-4 border-b border-gray-200">

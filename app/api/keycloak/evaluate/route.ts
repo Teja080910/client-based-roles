@@ -1,4 +1,5 @@
 // app/api/keycloak/evaluate/route.ts
+import { auth } from '@/lib/auth';
 import { getKeycloakClient } from '@/lib/keycloak';
 import axios from 'axios';
 import { NextRequest, NextResponse } from 'next/server';
@@ -9,14 +10,13 @@ export async function POST(req: NextRequest) {
     formData.append('grant_type', 'urn:ietf:params:oauth:grant-type:uma-ticket');
     formData.append('audience', clientId);
     formData.append('response_mode', 'permissions');
+    const session = await auth();
+    const accessTokenFromSession = (session as any)?.accessToken;
 
-    console.log('accessToken:', accessToken);
+    console.log('Access Token from session:', accessTokenFromSession, session);
 
-    // if (!accessToken) {
-    //     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    // }
-
-    try {
+    if(accessToken){
+        try {
         const response = await axios.post(
             `http://localhost:8080/realms/${realm}/protocol/openid-connect/token`,
             formData,
@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
         console.log(err)
         console.error(err.response?.data || err.message);
         return NextResponse.json({ error: 'Failed to evaluate permissions' }, { status: 500 });
+    }
     }
 }
 

@@ -50,11 +50,9 @@ export default function DashboardPage() {
         const data = await res.json();
         setRoles(data.roles);
         setClients(data.clients);
-        console.log('Roles:', data);
     }
 
     const handleClientSelect = (client: string) => {
-        console.log('Selected client:', client);
         setSelectedClient(client);
         fetchPermissions()
     }
