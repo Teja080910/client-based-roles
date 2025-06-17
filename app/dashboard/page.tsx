@@ -1,8 +1,9 @@
+'use client';
 
 import ProtectedPage from '@/components/dashboard/prev-dashboard';
 import { Button } from '@/components/ui/button';
 import { BookOpen, LogOut, Settings, Users } from 'lucide-react';
-import { signOut } from 'next-auth/react';
+import { signIn, signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthProvider';
 import { ClientSelector } from './client-select';
@@ -13,14 +14,14 @@ export default function DashboardPage() {
     const [permissions, setPermissions] = useState<any[]>([]);
     const [roles, setRoles] = useState<any[]>([]);
     const [clients, setClients] = useState<any[]>([]);
-    const { session, status } = useAuth();
+    const { session, status, loading } = useAuth();
     const [selectedClient, setSelectedClient] = useState<string>('AOL');
     const token = session?.accessToken;
 
-    console.log('Session:', session);
-
     useEffect(() => {
-        fetchPermissions();
+        if(token){
+            fetchPermissions();
+        }
         fetchRoles();
     }, [token, selectedClient]);
 
@@ -33,10 +34,18 @@ export default function DashboardPage() {
             body: JSON.stringify({
                 realm: 'master',
                 clientId: selectedClient,
-                accessToken: token,
+                userToken: token,
+                userId: session?.user?.name
             }),
         });
         const data = await res.json();
+        if (data.error) {
+            signIn('keycloak', {
+                callbackUrl: '/',
+                error: data.error,
+            });
+            return;
+        }
         setPermissions(data);
     };
     const fetchRoles = async () => {
@@ -66,8 +75,12 @@ export default function DashboardPage() {
         }
     }, [session, status]);
 
+    if (loading) {
+        return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    }
+
     return (
-        !session ? <ProtectedPage /> :
+        !session?.user ? <ProtectedPage /> :
             <div className="min-h-screen bg-gray-50">
                 {/* Header */}
                 <div className="bg-white shadow-sm border-b border-gray-200">

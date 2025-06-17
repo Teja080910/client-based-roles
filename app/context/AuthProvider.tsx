@@ -8,11 +8,20 @@ const AuthContext = createContext<any>(null);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState('');
 
   useEffect(() => {
     const checkSession = async () => {
       const session = await getSession();
+
+      // i want decode the token and get the user id
+      if (session) {
+        const token = (session as any).accessToken;
+        if (token) {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          (session as any).user.id = payload.sub;
+        }
+      }
+
       setSession(session);
       setLoading(false);
 
@@ -26,11 +35,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     checkSession();
 
-    // const interval = setInterval(() => {
-    //   checkSession();
-    // },  30 * 1000);
+    const interval = setInterval(() => {
+      checkSession();
+    }, 30 * 1000);
 
-    // return () => clearInterval(interval);
+    return () => clearInterval(interval);
   }, []);
 
   return (
