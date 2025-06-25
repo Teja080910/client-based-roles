@@ -1,7 +1,7 @@
 import { getKeycloakClient } from "@/lib/keycloak";
 import { NextRequest, NextResponse } from "next/server";
 
-export const GET = async (req: NextRequest, { params }: { params: { id: string } }) => {
+export const GET = async (req: NextRequest, { params }: { params: any }) => {
     const { id } = params;
     if (!id) {
         return NextResponse.json({ error: "clientId is required" }, { status: 400 });
