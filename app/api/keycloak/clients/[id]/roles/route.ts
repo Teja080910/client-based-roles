@@ -1,7 +1,7 @@
 import { getKeycloakClient } from "@/lib/keycloak";
 import { NextResponse } from "next/server";
 
-export async function GET(req: Request, { params }: { params: any }) {
+export async function GET(req: Request, { params }: { params: { id: string } }) {
     try {
         const kcAdminClient = await getKeycloakClient();
         const defaultRoleNames = ["uma_authorization", "offline_access"];

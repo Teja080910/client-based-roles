@@ -2,7 +2,7 @@ import { getKeycloakClient } from "@/lib/keycloak";
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 
-export const GET = async (req: NextRequest, { params }: { params: any }) => {
+export const GET = async (req: NextRequest, { params }: { params: { id: string } }) => {
   try {
     const clientId = params.id;
 
@@ -34,7 +34,7 @@ export const GET = async (req: NextRequest, { params }: { params: any }) => {
   }
 };
 
-export const POST = async (req: NextRequest, { params }: { params: any}) => {
+export const POST = async (req: NextRequest, { params }: { params: { id: string } }) => {
   try {
     const clientId = params.id;
 
