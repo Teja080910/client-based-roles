@@ -14,18 +14,18 @@ export const authOptions: AuthOptions = {
         strategy: "jwt",
         // maxAge: 60 * 2
     },
-    cookies: {
-        sessionToken: {
-            name: `__Secure-next-auth.session-token`,
-            options: {
-                httpOnly: true,
-                sameSite: "lax",
-                secure: true,
-                path: "/",
-                domain: '.sample.org',
-            },
-        },
-    },
+    // cookies: {
+    //     sessionToken: {
+    //         name: `__Secure-next-auth.session-token`,
+    //         options: {
+    //             httpOnly: true,
+    //             sameSite: "lax",
+    //             secure: true,
+    //             path: "/",
+    //             domain: '.sample.org',
+    //         },
+    //     },
+    // },
     callbacks: {
         async jwt({ token, account }) {
             if (account) {
