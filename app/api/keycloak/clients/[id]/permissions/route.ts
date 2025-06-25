@@ -2,9 +2,9 @@ import { getKeycloakClient } from "@/lib/keycloak";
 import { NextRequest, NextResponse } from "next/server";
 import axios from "axios";
 
-export const GET = async (req: NextRequest, { params }: { params: { id: string } }) => {
+export const GET = async (req: NextRequest, context: { params: Record<string, string> | any }) => {
   try {
-    const clientId = params.id;
+    const clientId = context.params.id;
 
     if (!clientId) {
       return NextResponse.json({ error: "clientId is required" }, { status: 400 });
@@ -34,9 +34,9 @@ export const GET = async (req: NextRequest, { params }: { params: { id: string }
   }
 };
 
-export const POST = async (req: NextRequest, { params }: { params: { id: string } }) => {
+export const POST = async (req: NextRequest, context: { params: Record<string, string> | any }) => {
   try {
-    const clientId = params.id;
+    const clientId = context.params.id;
 
     if (!clientId) {
       return NextResponse.json({ error: "clientId is required" }, { status: 400 });

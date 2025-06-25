@@ -2,8 +2,8 @@ import { getKeycloakClient } from "@/lib/keycloak";
 import { NextRequest, NextResponse } from "next/server";
 
 // fetch default and custom scopes for a client
-export const GET = async (req: NextRequest, { params }: { params: { id: string } }) => {
-    const { id } = params;
+export const GET = async (req: NextRequest, context: { params: Record<string, string> | any }) => {
+    const { id } = context.params;
     if (!id) {
         return NextResponse.json({ error: "clientId is required" }, { status: 400 });
     }

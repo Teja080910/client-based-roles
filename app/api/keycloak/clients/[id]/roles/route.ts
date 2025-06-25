@@ -1,11 +1,11 @@
 import { getKeycloakClient } from "@/lib/keycloak";
 import { NextResponse } from "next/server";
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, context: { params: Record<string, string> | any }) {
     try {
         const kcAdminClient = await getKeycloakClient();
         const defaultRoleNames = ["uma_authorization", "offline_access"];
-        const allRoles = await kcAdminClient.clients.listRoles({ id: params.id });
+        const allRoles = await kcAdminClient.clients.listRoles({ id: context.params.id });
         const defaultRoles = allRoles.filter(role => defaultRoleNames.includes(role.name!));
         const customRoles = allRoles.filter(role => !defaultRoleNames.includes(role.name!));
 
