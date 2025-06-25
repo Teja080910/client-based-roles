@@ -12,7 +12,7 @@ export const GET = async (req: NextRequest, context: { params: Record<string, st
 
     const kc = await getKeycloakClient();
 
-    const response = await kc.clients.findPermissions({ id: clientId });
+    const response = await kc.clients.findPermissions({ id: clientId, name: "Default Permission" });
 
     const defaultPermissionsList = ['Default Permission'];
 
