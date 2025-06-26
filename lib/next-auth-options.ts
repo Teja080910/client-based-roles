@@ -36,7 +36,7 @@ export const authOptions: AuthOptions = {
                 return token
             }
             // we take a buffer of sixty seconds (60 * 1000 ms)
-            console.log("date now", new Date(Date.now()).toLocaleString())
+            console.log("date now", Date.now())
             if (Date.now() < (Number(token.expiresAt) * 1000 - 60 * 1000)) {
                 return token
             } else {
